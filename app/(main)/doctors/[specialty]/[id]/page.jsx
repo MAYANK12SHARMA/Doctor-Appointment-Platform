@@ -16,6 +16,7 @@ export default async function DoctorProfilePage({ params }) {
       <DoctorProfile
         doctor={doctorData.doctor}
         availableDays={slotsData.days || []}
+        hasAvailability={slotsData.hasAvailability}
       />
     );
   } catch (error) {

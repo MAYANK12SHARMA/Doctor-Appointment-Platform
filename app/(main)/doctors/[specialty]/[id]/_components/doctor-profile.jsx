@@ -28,7 +28,11 @@ import { SlotPicker } from "./slot-picker";
 import { AppointmentForm } from "./appointment-form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export function DoctorProfile({ doctor, availableDays }) {
+export function DoctorProfile({
+  doctor,
+  availableDays,
+  hasAvailability = true,
+}) {
   const [showBooking, setShowBooking] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const router = useRouter();
@@ -36,7 +40,7 @@ export function DoctorProfile({ doctor, availableDays }) {
   // Calculate total available slots
   const totalSlots = availableDays?.reduce(
     (total, day) => total + day.slots.length,
-    0
+    0,
   );
 
   const toggleBooking = () => {
@@ -102,9 +106,15 @@ export function DoctorProfile({ doctor, availableDays }) {
 
                 <Button
                   onClick={toggleBooking}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 mt-4"
+                  disabled={!hasAvailability}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 mt-4 disabled:opacity-60"
                 >
-                  {showBooking ? (
+                  {!hasAvailability ? (
+                    <>
+                      Booking Unavailable
+                      <AlertCircle className="ml-2 h-4 w-4" />
+                    </>
+                  ) : showBooking ? (
                     <>
                       Hide Booking
                       <ChevronUp className="ml-2 h-4 w-4" />
@@ -160,11 +170,12 @@ export function DoctorProfile({ doctor, availableDays }) {
                   </p>
                 </div>
               ) : (
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    No available slots for the next 4 days. Please check back
-                    later.
+                <Alert className="border-yellow-500/30 bg-yellow-500/10">
+                  <AlertCircle className="h-4 w-4 text-yellow-400" />
+                  <AlertDescription className="text-gray-300">
+                    {hasAvailability
+                      ? "All appointment slots for the next 4 days are fully booked. Please check back later."
+                      : "This doctor hasn't shared their consultation schedule yet. Appointment booking will be available once the doctor publishes their availability."}
                   </AlertDescription>
                 </Alert>
               )}
@@ -206,15 +217,19 @@ export function DoctorProfile({ doctor, availableDays }) {
                     )}
                   </>
                 ) : (
-                  <div className="text-center py-6">
-                    <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                    <h3 className="text-xl font-medium text-white mb-2">
-                      No available slots
+                  <div className="text-center py-8">
+                    <Calendar className="h-14 w-14 mx-auto text-yellow-400 mb-4" />
+
+                    <h3 className="text-2xl font-semibold text-white mb-3">
+                      {hasAvailability
+                        ? "No Slots Available"
+                        : "Doctor Hasn't Shared Availability"}
                     </h3>
-                    <p className="text-muted-foreground">
-                      This doctor doesn&apos;t have any available appointment
-                      slots for the next 4 days. Please check back later or try
-                      another doctor.
+
+                    <p className="text-muted-foreground max-w-md mx-auto">
+                      {hasAvailability
+                        ? "All appointment slots for the next 4 days are currently booked. Please check back later or choose another doctor."
+                        : "This doctor hasn't published their consultation schedule yet. Once availability is added, you'll be able to book an appointment here."}
                     </p>
                   </div>
                 )}

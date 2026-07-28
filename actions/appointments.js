@@ -307,7 +307,10 @@ export async function getAvailableTimeSlots(doctorId) {
     });
 
     if (!availability) {
-      throw new Error("No availability set by doctor");
+      return {
+        days: [],
+        hasAvailability: false,
+      };
     }
 
     // Get the next 4 days

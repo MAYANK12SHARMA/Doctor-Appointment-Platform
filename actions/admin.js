@@ -9,6 +9,7 @@ import { revalidatePath } from "next/cache";
  */
 export async function verifyAdmin() {
   const { userId } = await auth();
+  console.log("Current Clerk User:", userId);
 
   if (!userId) {
     return false;
@@ -20,6 +21,7 @@ export async function verifyAdmin() {
         clerkUserId: userId,
       },
     });
+    console.log("Database User:", user);
 
     return user?.role === "ADMIN";
   } catch (error) {
