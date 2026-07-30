@@ -1,20 +1,21 @@
-// /app/doctors/[id]/_components/doctor-profile.jsx
 "use client";
 
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+
 import {
   User,
   Calendar,
-  Clock,
   Medal,
   FileText,
   ChevronDown,
   ChevronUp,
   AlertCircle,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+
 import {
   Card,
   CardContent,
@@ -22,56 +23,59 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
 import { SlotPicker } from "./slot-picker";
 import { AppointmentForm } from "./appointment-form";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function DoctorProfile({
   doctor,
   availableDays,
-  hasAvailability = true,
 }) {
-  const [showBooking, setShowBooking] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState(null);
   const router = useRouter();
 
-  // Calculate total available slots
-  const totalSlots = availableDays?.reduce(
-    (total, day) => total + day.slots.length,
-    0,
-  );
+  const [showBooking, setShowBooking] = useState(false);
 
-  const toggleBooking = () => {
-    setShowBooking(!showBooking);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+
+  
+
+  function toggleBooking() {
+    setShowBooking((previous) => !previous);
+
     if (!showBooking) {
-      // Scroll to booking section when expanding
       setTimeout(() => {
         document.getElementById("booking-section")?.scrollIntoView({
           behavior: "smooth",
         });
       }, 100);
     }
-  };
+  }
 
-  const handleSlotSelect = (slot) => {
+  function handleSlotSelect(slot) {
     setSelectedSlot(slot);
-  };
+  }
 
-  const handleBookingComplete = () => {
+  function handleBookingComplete() {
     router.push("/appointments");
-  };
+  }
+  // console.log("Available Days:", availableDays);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* Left column - Doctor Photo and Quick Info (fixed on scroll) */}
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      {/* ========================================================= */}
+      {/* Left Sidebar                                              */}
+      {/* ========================================================= */}
+
       <div className="md:col-span-1">
         <div className="md:sticky md:top-24">
           <Card className="border-emerald-900/20">
             <CardContent className="pt-6">
               <div className="flex flex-col items-center text-center">
-                <div className="relative w-32 h-32 rounded-full overflow-hidden mb-4 bg-emerald-900/20">
+                <div className="relative mb-4 h-32 w-32 overflow-hidden rounded-full bg-emerald-900/20">
                   {doctor.imageUrl ? (
                     <Image
                       src={doctor.imageUrl}
@@ -80,41 +84,34 @@ export function DoctorProfile({
                       className="object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <User className="h-16 w-16 text-emerald-400" />
+                    <div className="flex h-full w-full items-center justify-center">
+                      <User className="h-16 w-16 text-emerald-500" />
                     </div>
                   )}
                 </div>
 
-                <h2 className="text-xl font-bold text-white mb-1">
-                  Dr. {doctor.name}
-                </h2>
+                <h2 className="mb-1 text-2xl font-bold">Dr. {doctor.name}</h2>
 
                 <Badge
                   variant="outline"
-                  className="bg-emerald-900/20 border-emerald-900/30 text-emerald-400 mb-4"
+                  className="mb-4 border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
                 >
                   {doctor.specialty}
                 </Badge>
 
-                <div className="flex items-center justify-center mb-2">
-                  <Medal className="h-4 w-4 text-emerald-400 mr-2" />
-                  <span className="text-muted-foreground">
+                <div className="mb-2 flex items-center gap-2">
+                  <Medal className="h-4 w-4 text-emerald-500" />
+
+                  <span className="text-sm text-muted-foreground">
                     {doctor.experience} years experience
                   </span>
                 </div>
 
                 <Button
                   onClick={toggleBooking}
-                  disabled={!hasAvailability}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 mt-4 disabled:opacity-60"
+                  className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700"
                 >
-                  {!hasAvailability ? (
-                    <>
-                      Booking Unavailable
-                      <AlertCircle className="ml-2 h-4 w-4" />
-                    </>
-                  ) : showBooking ? (
+                  {showBooking ? (
                     <>
                       Hide Booking
                       <ChevronUp className="ml-2 h-4 w-4" />
@@ -132,106 +129,84 @@ export function DoctorProfile({
         </div>
       </div>
 
-      {/* Right column - Doctor Details and Booking Section */}
-      <div className="md:col-span-2 space-y-6">
+      {/* ========================================================= */}
+      {/* Right Section                                             */}
+      {/* ========================================================= */}
+
+      <div className="space-y-6 md:col-span-2">
         <Card className="border-emerald-900/20">
           <CardHeader>
-            <CardTitle className="text-xl font-bold text-white">
-              About Dr. {doctor.name}
-            </CardTitle>
+            <CardTitle className="text-2xl">About Dr. {doctor.name}</CardTitle>
+
             <CardDescription>
-              Professional background and expertise
+              Professional background and consultation details.
             </CardDescription>
           </CardHeader>
+
           <CardContent className="space-y-6">
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-emerald-400" />
-                <h3 className="text-white font-medium">Description</h3>
+                <FileText className="h-5 w-5 text-emerald-500" />
+
+                <h3 className="font-semibold">Description</h3>
               </div>
-              <p className="text-muted-foreground whitespace-pre-line">
+
+              <p className="whitespace-pre-line text-muted-foreground">
                 {doctor.description}
               </p>
             </div>
 
-            <Separator className="bg-emerald-900/20" />
+            <Separator />
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-emerald-400" />
-                <h3 className="text-white font-medium">Availability</h3>
+                <Calendar className="h-5 w-5 text-emerald-500" />
+
+                <h3 className="font-semibold">Appointment Availability</h3>
               </div>
-              {totalSlots > 0 ? (
-                <div className="flex items-center">
-                  <Calendar className="h-5 w-5 text-emerald-400 mr-2" />
-                  <p className="text-muted-foreground">
-                    {totalSlots} time slots available for booking over the next
-                    4 days
-                  </p>
-                </div>
-              ) : (
-                <Alert className="border-yellow-500/30 bg-yellow-500/10">
-                  <AlertCircle className="h-4 w-4 text-yellow-400" />
-                  <AlertDescription className="text-gray-300">
-                    {hasAvailability
-                      ? "All appointment slots for the next 4 days are fully booked. Please check back later."
-                      : "This doctor hasn't shared their consultation schedule yet. Appointment booking will be available once the doctor publishes their availability."}
-                  </AlertDescription>
-                </Alert>
-              )}
+
+              <p className="text-muted-foreground">
+                View this doctor's monthly schedule and choose any available
+                consultation date.
+              </p>
             </div>
           </CardContent>
         </Card>
+        {/* ========================================================= */}
+        {/* Booking Section                                           */}
+        {/* ========================================================= */}
 
-        {/* Booking Section - Conditionally rendered */}
         {showBooking && (
+
           <div id="booking-section">
+            
             <Card className="border-emerald-900/20">
               <CardHeader>
-                <CardTitle className="text-xl font-bold text-white">
-                  Book an Appointment
-                </CardTitle>
+                <CardTitle className="text-2xl">Book an Appointment</CardTitle>
+
                 <CardDescription>
-                  Select a time slot and provide details for your consultation
+                  Select a date from the calendar and then choose an available
+                  consultation slot.
                 </CardDescription>
               </CardHeader>
+              
+              
               <CardContent className="space-y-6">
-                {totalSlots > 0 ? (
+                {!selectedSlot && (
                   <>
-                    {/* Slot selection step */}
-                    {!selectedSlot && (
-                      <SlotPicker
-                        days={availableDays}
-                        onSelectSlot={handleSlotSelect}
-                      />
-                    )}
-
-                    {/* Appointment form step */}
-                    {selectedSlot && (
-                      <AppointmentForm
-                        doctorId={doctor.id}
-                        slot={selectedSlot}
-                        onBack={() => setSelectedSlot(null)}
-                        onComplete={handleBookingComplete}
-                      />
-                    )}
+                    <SlotPicker
+                    days={availableDays}
+                    onSelectSlot={handleSlotSelect}/>
                   </>
-                ) : (
-                  <div className="text-center py-8">
-                    <Calendar className="h-14 w-14 mx-auto text-yellow-400 mb-4" />
+                )}
 
-                    <h3 className="text-2xl font-semibold text-white mb-3">
-                      {hasAvailability
-                        ? "No Slots Available"
-                        : "Doctor Hasn't Shared Availability"}
-                    </h3>
-
-                    <p className="text-muted-foreground max-w-md mx-auto">
-                      {hasAvailability
-                        ? "All appointment slots for the next 4 days are currently booked. Please check back later or choose another doctor."
-                        : "This doctor hasn't published their consultation schedule yet. Once availability is added, you'll be able to book an appointment here."}
-                    </p>
-                  </div>
+                {selectedSlot && (
+                  <AppointmentForm
+                    doctorId={doctor.id}
+                    slot={selectedSlot}
+                    onBack={() => setSelectedSlot(null)}
+                    onComplete={handleBookingComplete}
+                  />
                 )}
               </CardContent>
             </Card>

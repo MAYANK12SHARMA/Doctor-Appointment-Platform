@@ -30,7 +30,7 @@ import {
   addAppointmentNotes,
   markAppointmentCompleted,
 } from "@/actions/doctor";
-import { generateVideoToken } from "@/actions/appointments";
+import { generateVideoToken as createAppointmentToken } from "@/actions/appointments";
 import useFetch from "@/hooks/use-fetch";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -60,7 +60,7 @@ export function AppointmentCard({
     loading: tokenLoading,
     fn: submitTokenRequest,
     data: tokenData,
-  } = useFetch(generateVideoToken);
+  } = useFetch(createAppointmentToken);
   const {
     loading: completeLoading,
     fn: submitMarkCompleted,
@@ -148,13 +148,14 @@ export function AppointmentCard({
 
   // Handle join video call
   const handleJoinVideoCall = async () => {
+    console.log("===== JOIN VIDEO =====");
+  console.log("userRole:", userRole);
+  console.log("appointment:", appointment.id);
     if (tokenLoading) return;
 
     setAction("video");
 
-    const formData = new FormData();
-    formData.append("appointmentId", appointment.id);
-    await submitTokenRequest(formData);
+    await submitTokenRequest(appointment.id);
   };
 
   // Handle successful operations
@@ -195,15 +196,20 @@ export function AppointmentCard({
   }, [notesData, refetchAppointments, router]);
 
   useEffect(() => {
-    if (tokenData?.success) {
-      // Redirect to video call page with token and session ID
-      router.push(
-        `/video-call?sessionId=${tokenData.videoSessionId}&token=${tokenData.token}&appointmentId=${appointment.id}`
-      );
-    } else if (tokenData?.error) {
-      setAction(null);
-    }
-  }, [tokenData, appointment.id, router]);
+  if (tokenData?.success) {
+    const url = `/video-call?sessionId=${encodeURIComponent(
+      tokenData.sessionId
+    )}&token=${encodeURIComponent(
+      tokenData.token
+    )}&role=${userRole.toLowerCase()}`;
+
+    console.log("Navigating to:", url);
+
+    router.push(url);
+  } else if (tokenData?.error) {
+    setAction(null);
+  }
+}, [tokenData, userRole, router]);
 
   // Determine if appointment is active (within 30 minutes of start time)
   const isAppointmentActive = () => {

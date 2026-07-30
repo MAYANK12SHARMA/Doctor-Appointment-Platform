@@ -128,3 +128,37 @@
 @utility gradient-title {
   @apply gradient font-bold text-transparent bg-clip-text pb-1 pr-2;
 }
+
+/* Publisher */
+#publisher,
+#subscriber{
+    position:relative;
+    overflow:hidden;
+    background:black;
+}
+
+/* Vonage root */
+#publisher .OT_root,
+#subscriber .OT_root{
+    position:absolute !important;
+    inset:0 !important;
+    width:100% !important;
+    height:100% !important;
+}
+
+/* Video */
+#publisher video,
+#subscriber video{
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover !important;
+}
+
+/* Internal wrappers */
+#publisher .OT_video-element,
+#subscriber .OT_video-element,
+#publisher .OT_widget-container,
+#subscriber .OT_widget-container{
+    width:100% !important;
+    height:100% !important;
+}

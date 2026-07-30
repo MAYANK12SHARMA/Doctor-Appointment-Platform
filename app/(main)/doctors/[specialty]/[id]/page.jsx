@@ -1,26 +1,48 @@
-import { getDoctorById, getAvailableTimeSlots } from "@/actions/appointments";
-import { DoctorProfile } from "./_components/doctor-profile";
+import { addDays } from "date-fns";
 import { redirect } from "next/navigation";
+
+import { getDoctorById } from "@/actions/appointments";
+import { getAvailableSlots } from "@/actions/scheduling";
+import { normalizeDate } from "@/lib/scheduling/date-utils";
+
+import { DoctorProfile } from "./_components/doctor-profile";
 
 export default async function DoctorProfilePage({ params }) {
   const { id } = await params;
 
   try {
-    // Fetch doctor data and available slots in parallel
-    const [doctorData, slotsData] = await Promise.all([
-      getDoctorById(id),
-      getAvailableTimeSlots(id),
-    ]);
+    const response = await getDoctorById(id);
 
-    return (
-      <DoctorProfile
-        doctor={doctorData.doctor}
-        availableDays={slotsData.days || []}
-        hasAvailability={slotsData.hasAvailability}
-      />
+    if (!response?.success) {
+      redirect("/doctors");
+    }
+
+    const doctor = response.doctor;
+
+    const today = normalizeDate(new Date());
+
+    const upcomingDates = Array.from({ length: 60 }, (_, index) =>
+      addDays(today, index),
     );
+
+    const availableDays = await Promise.all(
+      upcomingDates.map(async (date) => {
+        const normalizedDate = normalizeDate(date);
+
+        const slotResponse = await getAvailableSlots(doctor.id, normalizedDate);
+
+        return {
+          date: new Date(normalizedDate),
+          timezone: doctor.timezone,
+          reason: slotResponse.reason ?? null,
+          slots: slotResponse.slots ?? [],
+        };
+      }),
+    );
+
+    return <DoctorProfile doctor={doctor} availableDays={availableDays} />;
   } catch (error) {
-    console.error("Error loading doctor profile:", error);
+    console.error("Doctor Profile Error:", error);
     redirect("/doctors");
   }
 }
