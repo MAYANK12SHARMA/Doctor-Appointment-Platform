@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "./ui/button";
+import DemoAccountsSheet from "./demo-accounts-sheet";
 import {
   Calendar,
   CreditCard,
@@ -100,6 +101,8 @@ export default async function Header() {
               </Link>
             )}
           </SignedIn>
+
+          <DemoAccountsSheet />
 
           {(!user || user?.role !== "ADMIN") && (
             <Link href={user?.role === "PATIENT" ? "/pricing" : "/doctor"}>
